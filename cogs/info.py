@@ -27,5 +27,5 @@ class Info(commands.Cog):
         embed.set_footer(text='ID: ' + str(user.id))
         return await ctx.channel.send(embed=embed)
 
-def setup(bot): # this is called by Pycord to setup the cog
-    bot.add_cog(Info(bot)) # add the cog to the bot
+async def setup(bot): # this is called by Pycord to setup the cog
+    await bot.add_cog(Info(bot)) # add the cog to the bot

@@ -1,7 +1,6 @@
-import discord
 from discord.ext import commands
 
-class Greetings(commands.Cog):
+class Other(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
@@ -12,5 +11,5 @@ class Greetings(commands.Cog):
         await ctx.channel.send("Y COHINITAAAA")
         await ctx.channel.send("pero liquito bueno")
 
-def setup(bot): # this is called by Pycord to setup the cog
-    bot.add_cog(Greetings(bot)) # add the cog to the bot
+async def setup(bot): # this is called by Pycord to setup the cog
+    await bot.add_cog(Other(bot)) # add the cog to the bot

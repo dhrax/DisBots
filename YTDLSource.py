@@ -1,9 +1,6 @@
 import discord
-from discord.ext import commands
-
-import youtube_dl
+import yt_dlp as youtube_dl
 import asyncio
-
 
 class YTDLSource(discord.PCMVolumeTransformer):
 
@@ -20,6 +17,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
     ytdl_format_options = {
         'format': 'bestaudio/best',
+        'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
         'restrictfilenames': True,
         'noplaylist': True,
         'nocheckcertificate': True,
@@ -46,5 +44,5 @@ class YTDLSource(discord.PCMVolumeTransformer):
         if 'entries' in data:
             # take first item from a playlist
             data = data['entries'][0]
-        filename = data['title'] if stream else self.ytdl.prepare_filename(data)
-        return filename
+        filename = data['url'] if stream else self.ytdl.prepare_filename(data)
+        return self(discord.FFmpegPCMAudio(filename, **self.ffmpeg_play_options), data=data)

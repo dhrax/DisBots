@@ -1,40 +1,42 @@
 import discord
-from discord.ext import commands
+import os
+import asyncio
+from dotenv import load_dotenv
 
 from client import Client
 from bot import Bot
-
-import os
-from dotenv import load_dotenv
 
 def runClient(token, intents):
     client = Client(intents=intents)
     client.run(token)
 
-def runBot(token, intents):
-    bot = Bot(command_prefix='!', intents=intents, self_bot=False)
+async def runBot(token, bot):
+    await load_extensions(bot)
 
+    await bot.start(token)
+    
+async def load_extensions(bot: Bot):
     for filename in os.listdir('./cogs'): #for every file in cogs
         if filename.endswith('.py'): #if the file is a python file
             print(f'cogs.{filename[:-3]}')
-            bot.load_extension(f'cogs.{filename[:-3]}') #load the extension
+            await bot.load_extension(f'cogs.{filename[:-3]}') #load the extension
 
-    bot.run(token)
-
-def main():
+async def main():
     load_dotenv()
 
     token = os.getenv('DISCORD_TOKEN')
-    GUILD = os.getenv('DISCORD_GUILD')
+    #GUILD = os.getenv('DISCORD_GUILD')
 
     intents = discord.Intents.all()
     intents.messages = True
 
     #runClient(token, intents)
-    runBot(token, intents)
-
+    
+    bot = Bot(command_prefix='!', intents=intents, self_bot=False)
+    async with bot:
+        await runBot(token, bot)
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
     
     

@@ -1,4 +1,3 @@
-import discord
 from discord.ext import commands
 from YTDLSource import YTDLSource
 
@@ -20,6 +19,6 @@ class Download(commands.Cog):
             filename = await YTDLSource.from_url(url)
             #discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=filename)
         await ctx.channel.send('**Song downloaded:** {}'.format(filename))
-
-def setup(bot): # this is called by Pycord to setup the cog
-    bot.add_cog(Download(bot)) # add the cog to the bot
+        
+async def setup(bot):
+        await bot.add_cog(Download(bot))

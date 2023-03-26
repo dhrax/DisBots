@@ -1,4 +1,3 @@
-import discord
 from discord.ext import commands
 
 import datetime
@@ -14,5 +13,5 @@ class Greetings(commands.Cog):
         await ctx.channel.send("Hey!")
         print(f"mensaje enviado a las {datetime.datetime.now()}")
 
-def setup(bot): # this is called by Pycord to setup the cog
-    bot.add_cog(Greetings(bot)) # add the cog to the bot
+async def setup(bot): # this is called by Pycord to setup the cog
+    await bot.add_cog(Greetings(bot)) # add the cog to the bot

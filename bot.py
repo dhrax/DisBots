@@ -1,4 +1,3 @@
-import discord
 from discord.ext import commands
 
 class Bot(commands.Bot):
@@ -8,4 +7,8 @@ class Bot(commands.Bot):
 
     async def on_ready(self):
         print(f"{self.user} is ready and online!")
+        
+    async def on_command_error(self, context, exception) -> None:
+        print(f'exception in command {context.command}: {exception}')
+        return await super().on_command_error(context, exception)
     

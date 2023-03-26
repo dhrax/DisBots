@@ -1,4 +1,3 @@
-import discord
 from discord.ext import commands
 
 class Help(commands.Cog):
@@ -7,5 +6,5 @@ class Help(commands.Cog):
         self.bot = bot
 
 
-def setup(bot): # this is called by Pycord to setup the cog
-    bot.add_cog(Help(bot))
+async def setup(bot): # this is called by Pycord to setup the cog
+    await bot.add_cog(Help(bot))

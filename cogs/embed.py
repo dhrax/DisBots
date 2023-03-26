@@ -33,6 +33,5 @@ class Embed(commands.Cog):
     
         await ctx.channel.send("Hello! Here's a cool embed.", embed=embed) # Send the embed with some text
 
-
-def setup(bot): # this is called by Pycord to setup the cog
-    bot.add_cog(Embed(bot)) # add the cog to the bot
+async def setup(bot): # this is called by Pycord to setup the cog
+    await bot.add_cog(Embed(bot)) # add the cog to the bot
