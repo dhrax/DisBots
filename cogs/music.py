@@ -1,29 +1,59 @@
 from discord.ext import commands
 from YTDLSource import YTDLSource
+import asyncio
 
 class Music(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
         self.queue = {}
-
-    async def addToQueue(self, ctx, guild, song):
-        #if guild.id in self.queue:
-        self.queue[guild.id] = []
+    
+    async def addToQueue(self, ctx, guild, player):
+        if guild.id not in self.queue:
+            self.queue[guild.id] = []
         
-        self.queue[guild.id].append(song)
-        await ctx.send(f"Song added to queue: {song}")
-
+        self.queue[guild.id].append(player)
+        await ctx.send(f"Song added to queue: {player.title}")
+        
     async def playSong(self, ctx, channel, player):
-        async with ctx.typing():
-            #song = self.queue[channel.guild.id].pop(0)
-            #if song == None:
-            #    return
-            
-            channel.play(player)
+        async with ctx.typing():            
+            channel.play(player, after= lambda e: asyncio.run_coroutine_threadsafe(self.playNext(ctx, channel), self.bot.loop))
             
             await ctx.send('**Now playing:** {}'.format(player.title))
 
+    async def playNext(self, ctx: commands.Context, channel):
+        guildId = ctx.message.guild.id
+        if len(self.queue[guildId]) >= 1:
+            player = self.queue[guildId].pop(0)
+            await self.playSong(ctx, channel, player)
+        else:
+            await ctx.send("No more songs in queue.")
+            await asyncio.sleep(15)
+        if not channel.is_playing():
+            asyncio.run_coroutine_threadsafe(channel.disconnect(ctx), self.bot.loop)
+            asyncio.run_coroutine_threadsafe(ctx.send("No more songs in queue."), self.bot.loop)
+    
+    @commands.command(name='playQueue')
+    async def playQueue(self, ctx: commands.Context):
+        await self.playNext(ctx, ctx.voice_client)
+        
+    @commands.command(name='queue')
+    async def addSongQueueCommand(self, ctx: commands.Context, url):
+        song = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
+        await self.addToQueue(ctx, ctx.message.guild, song)
+
+    @commands.command(name='showQueue')
+    async def showQueue(self, ctx: commands.Context):
+        #add embed message
+        guild = ctx.message.guild
+        await ctx.send(f"{guild.name} song queue:")
+        message = ''
+        if guild.id in self.queue:
+            for i, song in enumerate(self.queue[guild.id]):
+                message += f'{i} {song.title}\n'
+        await ctx.send(message if message else 'Empty list')
+    
+    
     @commands.command(name='join', help='Tells the bot to join the voice channel')
     async def join(self, ctx):
         if not ctx.message.author.voice:
@@ -35,10 +65,9 @@ class Music(commands.Cog):
     @commands.command(name='play', help='Tells the bot to play song')
     async def play(self, ctx: commands.Context, url):
         try :
-            voice_client = ctx.message.guild.voice_client
+            voice_client = ctx.voice_client
             
             player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
-            #await self.addToQueue(ctx, server, URL)
             await self.playSong(ctx, voice_client, player)
 
         except Exception as e:
@@ -53,7 +82,7 @@ class Music(commands.Cog):
 
     @commands.command(name='pause', help='Pauses the song playing at the moment')
     async def pause(self, ctx):
-        voice_client = ctx.message.guild.voice_client
+        voice_client = ctx.voice_client
         if voice_client != None and voice_client.is_playing():
             voice_client.pause()
         else:
@@ -61,7 +90,7 @@ class Music(commands.Cog):
         
     @commands.command(name='resume', help='Resumes the song paused')
     async def resume(self, ctx):
-        voice_client = ctx.message.guild.voice_client
+        voice_client = ctx.voice_client
         if voice_client != None and voice_client.is_paused():
             voice_client.resume()
         else:
@@ -69,7 +98,7 @@ class Music(commands.Cog):
 
     @commands.command(name='stop', help='Stops the song playing at the moment')
     async def stop(self, ctx):
-        voice_client = ctx.message.guild.voice_client
+        voice_client = ctx.voice_client
         if voice_client != None and voice_client.is_playing():
             voice_client.stop()
         else:
@@ -77,7 +106,7 @@ class Music(commands.Cog):
             
     @commands.command(name='leave', help='Tells the bot leave the voice channel')
     async def leave(self, ctx):
-        voice_client = ctx.message.guild.voice_client
+        voice_client = ctx.voice_client
         if voice_client != None and voice_client.is_connected():
             await voice_client.disconnect()
         else:
@@ -85,6 +114,7 @@ class Music(commands.Cog):
             
     @play.before_invoke
     @stream.before_invoke
+    @playQueue.before_invoke
     async def ensure_voice(self, ctx):
         '''
         Ensures access to a voice channel for the required commands
