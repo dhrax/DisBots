@@ -130,3 +130,9 @@ dmypy.json
 
 # vs code
 .vscode/
+
+#lavalink
+lavalink/
+
+#tests
+test/

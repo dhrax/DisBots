@@ -12,7 +12,7 @@ class Client(discord.Client):
         if str(message.author) == 'dhrax#4911':
             response = 'You are so cool'
         elif str(message.author) == 'Valery#1527':
-            response = 'Eres bastante puta no?'
+            response = 'test'
         elif str(message.author) == 'Luismichu#1612':
             response = 'No se puede ser peor al Hades'
         elif message.content == '!B99':

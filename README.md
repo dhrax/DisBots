@@ -1,4 +1,4 @@
 TODO
 
-- [ ] Add songs to queue
-- [ ] Improve audio quality (Lavalink?)
+- [ ] Clean up
+- [ ] Add embedded messages
